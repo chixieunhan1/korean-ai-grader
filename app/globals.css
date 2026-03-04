@@ -158,3 +158,26 @@ h1 {
   line-height: 1.7;
   font-size: 0.98rem;
 }
+.subnote{
+  margin-top: 8px;
+  color: #111827;
+}
+
+.issues h3{
+  margin: 18px 0 8px;
+  font-size: 1.05rem;
+}
+
+.issues ul{
+  margin: 0;
+  padding-left: 18px;
+}
+
+.issues li{
+  margin: 10px 0;
+}
+
+.explain{
+  margin-top: 4px;
+  color: #374151;
+}
