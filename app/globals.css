@@ -148,3 +148,13 @@ h1 {
   color: #6b7280;
   font-weight: 600;
 }
+.summary-block{
+  white-space: pre-wrap;
+  margin: 12px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
