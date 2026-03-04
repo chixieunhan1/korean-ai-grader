@@ -18,8 +18,10 @@ type GradeResponse = {
   bai_viet_de_xuat: string;
 };
 
+type TabKey = 'nhan_xet_chung' | 'tu_vung_ngu_phap' | 'lap_luan_mach_lac' | 'bai_viet_de_xuat';
+
 type Tab = {
-  key: keyof Omit<GradeResponse, 'annotated_html' | 'loi_tu_vung' | 'loi_ngu_phap'>;
+  key: TabKey;
   label: string;
 };
 
@@ -31,20 +33,16 @@ const tabs: Tab[] = [
 ];
 
 function IssueList({ title, items }: { title: string; items: Issue[] }) {
-  if (!items || items.length === 0) return null;
+  if (!items?.length) return null;
 
   return (
-    <div className="issue-block">
-      <h3 className="issue-title">{title}</h3>
-      <ul className="issue-list">
+    <div className="issues">
+      <h3>{title}</h3>
+      <ul>
         {items.map((it, idx) => (
-          <li key={idx} className="issue-item">
-            <div className="issue-head">
-              <span className="err">{it.sai}</span>
-              <span className="arrow">→</span>
-              <span className="fix">{it.sua}</span>
-            </div>
-            <div className="issue-explain">{it.giai_thich}</div>
+          <li key={`${title}-${idx}`}>
+            <b className="err">{it.sai}</b> <span className="arrow">→</span> <b className="fix">{it.sua}</b>
+            {it.giai_thich && <div className="explain">{it.giai_thich}</div>}
           </li>
         ))}
       </ul>
@@ -54,7 +52,7 @@ function IssueList({ title, items }: { title: string; items: Issue[] }) {
 
 export default function HomePage() {
   const [text, setText] = useState('');
-  const [active, setActive] = useState<Tab['key']>('nhan_xet_chung');
+  const [active, setActive] = useState<TabKey>('nhan_xet_chung');
   const [result, setResult] = useState<GradeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,11 +76,6 @@ export default function HomePage() {
       }
 
       const data = (await response.json()) as GradeResponse;
-
-      // fallback nếu thiếu
-      data.loi_tu_vung = Array.isArray(data.loi_tu_vung) ? data.loi_tu_vung : [];
-      data.loi_ngu_phap = Array.isArray(data.loi_ngu_phap) ? data.loi_ngu_phap : [];
-
       setResult(data);
       setActive('nhan_xet_chung');
     } catch (e) {
@@ -139,10 +132,8 @@ export default function HomePage() {
                   <span className="fix">Sửa đúng</span>
                 </p>
 
-                {/* Tổng kết ngắn như cũ */}
-                <p>{result.tu_vung_ngu_phap}</p>
+                <p className="subnote">{result.tu_vung_ngu_phap}</p>
 
-                {/* PHẦN BẠN MUỐN THÊM (giống hình 2) */}
                 <IssueList title="Lỗi từ vựng" items={result.loi_tu_vung} />
                 <IssueList title="Lỗi ngữ pháp" items={result.loi_ngu_phap} />
               </div>
