@@ -54,6 +54,12 @@ QUY TẮC annotated_html:
 - Cho phép xuống dòng bằng <br>.
 - Không dùng markdown.
 - Không thêm bất kỳ thẻ khác (không a, không img, không div, không script/style).`;
+Mỗi lỗi phải dùng đúng định dạng:
+
+<span class="err" data-fix="TỪ_SỬA" data-explain="GIẢI_THÍCH_CHI_TIẾT">TỪ_SAI</span>
+
+- data-fix: từ sửa đúng
+- data-explain: giải thích chi tiết bằng tiếng Việt (1–3 câu)
 
 function extractJson(text: string): any {
   const trimmed = text.trim();
