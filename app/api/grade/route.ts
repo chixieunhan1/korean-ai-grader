@@ -24,7 +24,17 @@ Giải thích lỗi bằng tiếng Việt để người học dễ hiểu.
 ---
 
 QUY TẮC HIỂN THỊ LỖI TRONG BÀI VIẾT
+const questionHint =
+  question === '53'
+    ? 'Người dùng đã chọn CÂU 53. Hãy chấm theo rubric CÂU 53 (30 điểm).'
+    : question === '54'
+    ? 'Người dùng đã chọn CÂU 54. Hãy chấm theo rubric CÂU 54 (50 điểm).'
+    : 'Tự nhận diện câu 53 hay 54 dựa trên độ dài và cấu trúc.';
 
+messages: [
+  { role: 'system', content: systemPrompt },
+  { role: 'user', content: `${questionHint}\n\nHãy chấm bài viết sau:\n\n${writing}` },
+],
 Trong phần annotated_html, hãy đánh dấu lỗi theo đúng format sau:
 
 <span class="err" data-explain="Giải thích ngắn gọn bằng tiếng Việt">từ sai</span><span class="arrow">→</span><span class="fix">từ đúng</span>
