@@ -181,3 +181,29 @@ h1 {
   margin-top: 4px;
   color: #374151;
 }
+.err {
+  position: relative;
+  cursor: help;
+  border-bottom: 2px dashed #ef4444;
+}
+
+.err:hover::after {
+  content: attr(data-explain);
+  position: absolute;
+  left: 0;
+  top: calc(100% + 10px);
+
+  width: 340px;
+  background: #ecfeff;
+  border: 1px solid #99f6e4;
+
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+
+  z-index: 999;
+}
