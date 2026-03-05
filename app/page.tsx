@@ -9,10 +9,8 @@ type GradeResponse = {
   nhan_xet_chung: string;
   annotated_html: string;
   tu_vung_ngu_phap: string;
-  // nếu bạn đã thêm các mảng lỗi:
   loi_tu_vung?: Array<{ wrong: string; fix: string; explain_vi: string }>;
   loi_ngu_phap?: Array<{ wrong: string; fix: string; explain_vi: string }>;
-
   lap_luan_mach_lac: string;
   bai_viet_de_xuat: string;
 };
@@ -37,8 +35,6 @@ export default function HomePage() {
   const [result, setResult] = useState<GradeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // ✅ NEW: chọn câu
   const [question, setQuestion] = useState<QuestionMode>('auto');
 
   const disabled = useMemo(() => loading || text.trim().length < 20, [loading, text]);
@@ -51,7 +47,6 @@ export default function HomePage() {
       const response = await fetch('/api/grade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // ✅ NEW: gửi thêm question
         body: JSON.stringify({ writing: text, question }),
       });
 
@@ -72,54 +67,97 @@ export default function HomePage() {
 
   return (
     <main className="page">
-      <section className="card input-card">
-        <h1>Trợ lí AI Chixieunhan</h1>
-        <p className="subtitle">Dán bài viết TOPIK và nhấn “Chấm bài” để nhận phản hồi chi tiết.</p>
+      {/* HEADER */}
+      <header className="hero card">
+        <div className="heroTop">
+          <div className="brand">
+            <div className="logoDot" aria-hidden />
+            <div>
+              <h1 className="heroTitle">Trợ lí AI Chixieunhan</h1>
+              <p className="heroSub">
+                Chấm & sửa bài viết tiếng Hàn theo tiêu chí TOPIK — phát hiện lỗi nhỏ (띄어쓰기, 조사, 표현 자연스러움) và gợi ý bài viết hay hơn.
+              </p>
+            </div>
+          </div>
 
-        {/* ✅ NEW: dropdown chọn câu */}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 12 }}>
-          <label style={{ fontWeight: 600, color: '#374151' }}>Chọn dạng bài:</label>
-          <select
-            value={question}
-            onChange={(e) => setQuestion(e.target.value as QuestionMode)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 10,
-              border: '1px solid #cbd5e1',
-              background: '#fff',
-            }}
-          >
-            <option value="auto">Tự nhận diện</option>
-            <option value="53">Câu 53 (200–300 chữ)</option>
-            <option value="54">Câu 54 (600–700 chữ)</option>
-          </select>
+          <div className="controls">
+            <div className="control">
+              <div className="controlLabel">Chọn dạng bài</div>
+              <select
+                className="select"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value as QuestionMode)}
+              >
+                <option value="auto">Tự nhận diện</option>
+                <option value="53">Câu 53 (200–300자)</option>
+                <option value="54">Câu 54 (600–700자)</option>
+              </select>
+            </div>
 
-          {result?.loai_cau && (
-            <span style={{ marginLeft: 8, color: '#0f766e', fontWeight: 700 }}>
-              AI đang chấm: Câu {result.loai_cau}
-            </span>
-          )}
+            {result?.topik_score ? (
+              <div className="scoreCard">
+                <div className="scoreTitle">TOPIK Score</div>
+                <div className="scoreGrid">
+                  <div className="scoreItem">
+                    <div className="scoreK">Nội dung</div>
+                    <div className="scoreV">{result.topik_score.content}</div>
+                  </div>
+                  <div className="scoreItem">
+                    <div className="scoreK">Bố cục</div>
+                    <div className="scoreV">{result.topik_score.organization}</div>
+                  </div>
+                  <div className="scoreItem">
+                    <div className="scoreK">Ngôn ngữ</div>
+                    <div className="scoreV">{result.topik_score.language}</div>
+                  </div>
+                  <div className="scoreItem total">
+                    <div className="scoreK">Tổng</div>
+                    <div className="scoreV">{result.topik_score.total}</div>
+                  </div>
+                </div>
+
+                {result.loai_cau ? (
+                  <div className="scoreNote">AI đang chấm theo: Câu {result.loai_cau}</div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="tipCard">
+                <div className="tipTitle">Mẹo nhanh</div>
+                <div className="tipText">
+                  Dán bài → bấm <b>Chấm bài</b> → xem từng tab. Phần “Từ vựng & Ngữ pháp” sẽ có sửa trực tiếp + tổng kết lỗi.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* INPUT */}
+      <section className="card input-card mintBorder">
+        <div className="inputHeader">
+          <div className="inputTitle">Bài viết của học viên</div>
+          <div className="pill">{text.trim().length} ký tự</div>
         </div>
 
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Nhập bài viết của học sinh..."
+          placeholder="Dán bài viết tiếng Hàn vào đây..."
           className="writer"
         />
 
         <div className="action-row">
-          <button onClick={onGrade} disabled={disabled} className="grade-btn">
+          <button onClick={onGrade} disabled={disabled} className="grade-btn mintBtn">
             {loading ? 'Đang chấm...' : 'Chấm bài'}
           </button>
           <span className="hint">Tối thiểu 20 ký tự để bắt đầu chấm.</span>
+          {error && <span className="error-msg">{error}</span>}
         </div>
-
-        {error && <p className="error-msg">{error}</p>}
       </section>
 
+      {/* RESULT */}
       {result && (
-        <section className="card result-card">
+        <section className="card result-card mintBorder">
           <div className="tabs">
             {tabs.map((tab) => (
               <button
@@ -135,40 +173,54 @@ export default function HomePage() {
           <div className="panel">
             {active === 'tu_vung_ngu_phap' ? (
               <div className="annotated">
-                <div dangerouslySetInnerHTML={{ __html: result.annotated_html }} />
-                <p className="legend">
+                <div className="annotatedBox" dangerouslySetInnerHTML={{ __html: result.annotated_html }} />
+
+                <div className="legend">
                   <span className="err">Sai</span>
                   <span className="arrow">→</span>
                   <span className="fix">Sửa đúng</span>
-                </p>
+                </div>
 
-                <p>{result.tu_vung_ngu_phap}</p>
+                <div className="noteBox">{result.tu_vung_ngu_phap}</div>
 
-                {/* ✅ NEW: nếu có mảng lỗi thì hiển thị thêm */}
-                {result.loi_tu_vung?.length ? (
-                  <div style={{ marginTop: 14 }}>
-                    <h3 style={{ margin: '6px 0' }}>Lỗi từ vựng</h3>
-                    {result.loi_tu_vung.map((x, i) => (
-                      <p key={i}>
-                        <b>{x.wrong}</b> → <b>{x.fix}</b>: {x.explain_vi}
-                      </p>
-                    ))}
-                  </div>
-                ) : null}
+                {(result.loi_tu_vung?.length || result.loi_ngu_phap?.length) ? (
+                  <div className="twoCols">
+                    <div className="listCard">
+                      <div className="listTitle">Lỗi từ vựng</div>
+                      {result.loi_tu_vung?.length ? (
+                        <ul className="list">
+                          {result.loi_tu_vung.map((x, i) => (
+                            <li key={i}>
+                              <b>{x.wrong}</b> → <b>{x.fix}</b>
+                              <div className="explain">{x.explain_vi}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="empty">Chưa có dữ liệu lỗi từ vựng.</div>
+                      )}
+                    </div>
 
-                {result.loi_ngu_phap?.length ? (
-                  <div style={{ marginTop: 14 }}>
-                    <h3 style={{ margin: '6px 0' }}>Lỗi ngữ pháp</h3>
-                    {result.loi_ngu_phap.map((x, i) => (
-                      <p key={i}>
-                        <b>{x.wrong}</b> → <b>{x.fix}</b>: {x.explain_vi}
-                      </p>
-                    ))}
+                    <div className="listCard">
+                      <div className="listTitle">Lỗi ngữ pháp</div>
+                      {result.loi_ngu_phap?.length ? (
+                        <ul className="list">
+                          {result.loi_ngu_phap.map((x, i) => (
+                            <li key={i}>
+                              <b>{x.wrong}</b> → <b>{x.fix}</b>
+                              <div className="explain">{x.explain_vi}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="empty">Chưa có dữ liệu lỗi ngữ pháp.</div>
+                      )}
+                    </div>
                   </div>
                 ) : null}
               </div>
             ) : (
-              <p>{(result as any)[active]}</p>
+              <div className="noteBox">{(result as any)[active]}</div>
             )}
           </div>
         </section>
